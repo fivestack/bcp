@@ -1,0 +1,30 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "bcp"
+author = "Mike Alfare"
+author-email = "alfare@gmail.com"
+home-page = "https://github.com/mikealfare/bcp"
+requires = []
+requires-python = ">=3.6,<4"
+description-file = "README.md"
+dist-name = "bcp"
+keywords = "BCP SQLServer MSSQL"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3"
+]
+
+[tool.flit.metadata.requires-extra]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-freezegun"
+]
+doc = [
+    "sphinx",
+    "sphinx-autodoc-typehints"
+]
