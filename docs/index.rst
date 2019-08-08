@@ -1,10 +1,10 @@
 .. BCP documentation master file, created by
-   sphinx-quickstart on Tue Dec 18 15:05:51 2018.
+   sphinx-quickstart on Wed Aug  7 19:54:58 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 Welcome to BCP's documentation!
-======================================
+===============================
 The source repository is located
 `here <https://github.com/mikealfare/bcp>`_
 

@@ -7,16 +7,17 @@ module = "bcp"
 author = "Mike Alfare"
 author-email = "alfare@gmail.com"
 home-page = "https://github.com/mikealfare/bcp"
+
 requires = []
-requires-python = ">=3.6,<4"
+requires-python = ">=3.6"
+
 description-file = "README.md"
-dist-name = "bcp"
-keywords = "BCP SQLServer MSSQL"
 classifiers = [
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3"
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
 ]
+
+keywords = "BCP SQLServer MSSQL"
 
 [tool.flit.metadata.requires-extra]
 test = [
@@ -26,5 +27,6 @@ test = [
 ]
 doc = [
     "sphinx",
-    "sphinx-autodoc-typehints"
+    "sphinx-autodoc-typehints",
+    "sphinx_rtd_theme"
 ]
