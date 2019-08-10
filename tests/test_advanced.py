@@ -1,44 +1,46 @@
 import pathlib
 import subprocess
 import pytest
-from .context import bcp, STATIC_FILES
+from .context import STATIC_FILES, BCP, Connection, files
 
 HOST = 'MSSQL,12345'
+USERNAME = 'user'
+PASSWORD = 'pass'
 
 
 @pytest.fixture
-def mssql_bcp() -> bcp.BCP:
-    connection = bcp.Connection(host=HOST, driver='mssql')
-    return bcp.BCP(connection)
+def mssql_bcp() -> BCP:
+    connection = Connection(host=HOST, driver='mssql')
+    return BCP(connection)
 
 
 @pytest.fixture
-def output_file() -> pathlib.Path:
-    return STATIC_FILES / pathlib.Path('output.dat')
+def output_file() -> files.DataFile:
+    file = files.DataFile(STATIC_FILES / pathlib.Path('output.dat'))
+    return file
 
 
 @pytest.fixture
-def input_file() -> pathlib.Path:
-    return STATIC_FILES / pathlib.Path('input.dat')
+def input_file() -> files.DataFile:
+    file = files.DataFile(STATIC_FILES / pathlib.Path('input.dat'))
+    return file
 
 
 class TestMSSQL:
 
     database = 'SANDBOX'
 
-    def test_mssql_connection(self, mssql_bcp):
-        expected = f'-S {HOST} -T'
-        actual_dump = mssql_bcp.bcp_dump._get_connection_string()
-        actual_load = mssql_bcp.bcp_load._get_connection_string()
-        assert expected == actual_dump
-        assert expected == actual_load
-
     def test_mssql_can_dump_tables(self, mssql_bcp, output_file):
-        query = f'select s.name as schema_name, t.name as table_name from {self.database}.sys.tables t join {self.database}.sys.schemas s on s.schema_id = t.schema_id'
+        query = f'''
+            select s.name as schema_name, t.name as table_name
+            from {self.database}.sys.tables t
+            join {self.database}.sys.schemas s
+            on s.schema_id = t.schema_id
+        '''
         mssql_bcp.dump(query, output_file)
-        file_exists = output_file.is_file()
+        file_exists = output_file.file.is_file()
         if file_exists:
-            output_file.unlink()
+            output_file.file.unlink()
         assert True is file_exists
 
     def test_mssql_can_load_tables(self, mssql_bcp, input_file):

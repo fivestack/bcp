@@ -2,12 +2,12 @@ import datetime
 import pathlib
 import os
 import pytest
-from .context import files, exceptions, bcp
+from .context import files, exceptions, Connection, BCP
 
 
 @pytest.fixture
 def unsupported_connection():
-    connection = bcp.Connection(host='SERVER,12345', driver='mssql')
+    connection = Connection(host='SERVER,12345', driver='mssql')
     connection.driver = 'unsupported'
     return connection
 
@@ -35,9 +35,9 @@ class TestFileCreation:
 
 def test_unsupported_connection_raises_exception():
     with pytest.raises(exceptions.DriverNotSupportedException):
-        assert bcp.Connection(host='SERVER,12345', driver='unsupported')
+        assert Connection(host='SERVER,12345', driver='unsupported')
 
 
 def test_bcp_unsupported_connection_raises_exception(unsupported_connection):
     with pytest.raises(exceptions.DriverNotSupportedException):
-        assert bcp.BCP(unsupported_connection)
+        assert BCP(unsupported_connection)

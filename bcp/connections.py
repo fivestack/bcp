@@ -30,6 +30,9 @@ class Auth:
         else:
             raise InvalidCredentialException
 
+    def __repr__(self):
+        return f'<Auth: {self.username}>'
+
 
 class Connection:
     """This object describes a connection to be used to instantiate a BCP instance
@@ -56,3 +59,19 @@ class Connection:
             self.driver = driver
         else:
             raise DriverNotSupportedException
+
+    def __repr__(self):
+        return f'<Connection: {self.host}+{self.auth.__repr__()}>'
+
+    def __str__(self):
+        """This method will generate a connection string using the associated Connection object. It supports Trusted
+        connections (using Windows AD) and Credential connections (using SQL Server accounts).
+
+        Returns: a BCP formatted connection string
+        """
+        if self.driver == 'mssql':
+            if self.auth.type == 'Trusted':
+                auth_string = f'-T'
+            else:
+                auth_string = f'-U {self.auth.username} -P {self.auth.password}'
+            return f'-S {self.host} {auth_string}'

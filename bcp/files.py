@@ -31,6 +31,10 @@ class File(abc.ABC):
         file_path: pathlib.Path = self.directory / pathlib.Path(file_name)
         return file_path
 
+    @property
+    def path(self) -> pathlib.Path:
+        return self.file.absolute()
+
 
 class LogFile(File):
     """This is a handle to the log file to be generated"""
@@ -47,3 +51,11 @@ class ErrorFile(File):
         super().__init__(timestamp)
         self.extension = 'err'
 
+
+class DataFile(File):
+    """This is a handle to the data file to be generated"""
+
+    def __init__(self, timestamp: datetime = None, delimiter: str = ','):
+        super().__init__(timestamp)
+        self.extension = 'dat'
+        self.delimiter = delimiter

@@ -7,4 +7,5 @@ STATIC_FILES = PACKAGE_ROOT / Path('static_files')
 
 sys.path.insert(0, str(PROJECT_ROOT.absolute()))
 
-from bcp import bcp, load
+from bcp import connections, core, files, exceptions, Connection, BCP, DataFile
+from bcp.dialects import mssql

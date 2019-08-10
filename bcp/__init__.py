@@ -2,5 +2,6 @@
 __version__ = '0.2.1'
 name = 'bcp'
 
-from .connection import Connection
 from .core import BCP
+from .connections import Connection
+from .files import DataFile
