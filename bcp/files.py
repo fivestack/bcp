@@ -1,61 +1,110 @@
+"""
+This module contains data structures required to create and access files. Users will generally only need to use
+DataFile directly. LogFile and ErrorFile are used indirectly by the BCP classes.
+
+Example:
+
+.. code-block:: python
+
+    from bcp import DataFile
+
+    # create a csv to write out my data
+    my_file = DataFile(delimiter=',')
+    print(my_file.path)  # %USERPROFILE%/bcp/data/<timestamp>.csv
+"""
 import abc
 import datetime
-import pathlib
-from .config import BCP_LOGGING_DIRECTORY
+from pathlib import Path
+
+from .config import BCP_LOGGING_DIR, BCP_DATA_DIR
 
 
 class File(abc.ABC):
-    """This object creates a file handle given a timestamp so that unique error and log files can be created.
-    The file will be created in the BCP log directory specified in config.py.
+    """
+    This data structure creates a file handle given a file path.
+    If the file path is not provided:
+
+        - the current timestamp is used so that unique error, log, and data files can be created
+        - the file will be created in the BCP_ROOT_DIR directory specified in config.py
 
     Args:
-        timestamp: the timestamp to be used to generate the file, defaulted to when the file instance is created
+        file_path: the path object to the file, if not provided, a default using the current timestamp will be created
     """
 
-    def __init__(self, timestamp: datetime = None):
-        self.directory = BCP_LOGGING_DIRECTORY
-        if timestamp is not None:
-            self.timestamp = timestamp
-        else:
-            self.timestamp = datetime.datetime.now()
-        self.extension = None
+    def __init__(self, file_path: Path = None):
+        self._default_directory = None
+        self._default_extension = None
+        self.file = file_path
 
     @property
-    def file(self) -> pathlib.Path:
-        """This method returns a file path object with consistent naming format
+    def file(self) -> Path:
+        return self._file
 
-        Returns: a Path object that points to the new (yet to be created) file
+    @file.setter
+    def file(self, value: Path = None):
         """
-        timestamp_format: str = '%Y_%m_%d_%H_%M_%S_%f'
-        file_name: str = '.'.join([self.timestamp.strftime(timestamp_format), self.extension])
-        file_path: pathlib.Path = self.directory / pathlib.Path(file_name)
-        return file_path
+        This method generates a default file path object if none is provided
+
+        Returns:
+             a Path object that points to the file
+        """
+        if value is not None:
+            self._file = value
+        else:
+            timestamp_format: str = '%Y_%m_%d_%H_%M_%S_%f'
+            timestamp = datetime.datetime.now()
+            file_name: str = '.'.join([timestamp.strftime(timestamp_format), self._default_extension])
+            self._file = self._default_directory / Path(file_name)
 
     @property
-    def path(self) -> pathlib.Path:
-        return self.file.absolute()
-
-
-class LogFile(File):
-    """This is a handle to the log file to be generated"""
-
-    def __init__(self, timestamp: datetime = None):
-        super().__init__(timestamp)
-        self.extension = 'log'
-
-
-class ErrorFile(File):
-    """This is a handle to the error file to be generated"""
-
-    def __init__(self, timestamp: datetime = None):
-        super().__init__(timestamp)
-        self.extension = 'err'
+    def path(self) -> str:
+        return str(self.file.absolute())
 
 
 class DataFile(File):
-    """This is a handle to the data file to be generated"""
+    """
+    This is a handle to a data file.
 
-    def __init__(self, timestamp: datetime = None, delimiter: str = '\t'):
-        super().__init__(timestamp)
-        self.extension = 'dat'
-        self.delimiter = delimiter
+    Args:
+        file_path: the path object to the file, if not provided, a default using the current timestamp will be created
+        delimiter: the field delimiter for the data file
+    """
+    def __init__(self, file_path: Path = None, delimiter: str = None):
+        super().__init__(file_path)
+        self._default_directory = BCP_DATA_DIR
+        self.delimiter = delimiter or '\t'
+        if self.delimiter == '\t':
+            self._default_extension = 'tsv'
+        elif self.delimiter == ',':
+            self._default_extension = 'csv'
+        else:
+            self._default_extension = 'dat'
+        self.file = file_path
+
+
+class LogFile(File):
+    """
+    This is a handle to a log file.
+
+    Args:
+        file_path: the path object to the file, if not provided, a default using the current timestamp will be created
+    """
+    def __init__(self, file_path: Path = None):
+        super().__init__(file_path)
+        self._default_directory = BCP_LOGGING_DIR
+        self._default_extension = 'log'
+        self.file = file_path
+
+
+class ErrorFile(File):
+    """
+    This is a handle to an error file.
+
+    Args:
+        file_path: the path object to the file, if not provided, a default using the current timestamp will be created
+    """
+    def __init__(self, file_path: Path = None):
+        super().__init__(file_path)
+        self._default_directory = BCP_DATA_DIR
+        self._default_extension = 'err'
+        self.file = file_path

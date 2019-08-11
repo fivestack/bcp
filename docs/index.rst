@@ -24,44 +24,53 @@ Indices and tables
 User-Facing Classes
 ===================
 
-.. automodule:: bcp.connection
-   :members:
-   :private-members:
+BCP
+---
 
 .. automodule:: bcp.core
    :members:
    :private-members:
 
+Connections
+-----------
 
-Lower Level Utility Classes
-===========================
-
-.. automodule:: bcp.dump
+.. automodule:: bcp.connections
    :members:
    :private-members:
 
-.. automodule:: bcp.load
-   :members:
-   :private-members:
+Files
+-----
 
 .. automodule:: bcp.files
    :members:
    :private-members:
 
 
-SQL Server Support
-==================
-.. automodule:: bcp.sql_server
+Dialect Support
+===============
+
+.. automodule:: bcp.dialects.base
    :members:
-   :private-members:
+
+MSSQL
+-----
+
+.. automodule:: bcp.dialects.mssql
+   :members:
 
 
 Configuration
 =============
 
+Config
+------
+
 .. automodule:: bcp.config
    :members:
    :private-members:
+
+Exceptions
+----------
 
 .. automodule:: bcp.exceptions
    :members:

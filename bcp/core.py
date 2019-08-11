@@ -1,35 +1,28 @@
 """
-This is the core module of the package, containing the core object. Along with Connection, it serves as an entry point
-to the functionality of the bcp package.
-
-Load:
-This module contains the primary logic for importing data from a database. There is an abstract base class that serves
-as a shell to specify required methods. Otherwise, there are driver specific subclasses that implement this abstract
-base class along with methods pulled from the driver's mixin.
-
-Dump:
-This module contains the primary logic for exporting data from a database. There is an abstract base class that serves
-as a shell to specify required methods. Otherwise, there are driver specific subclasses that implement this abstract
-base class along with methods pulled from the driver's mixin.
+This is the core module of the library, containing the primary interface over the functionality of bcp. Along with its
+dependencies on Connection and DataFile, it serves as the entry point to the library. Simply create a Connection, pass
+it in to the BCP object, and then use load() or dump() to read data into and out of a database. See the methods below
+for examples.
 """
 
-import abc
-import subprocess
-
+from .exceptions import DriverNotSupportedException
 from .connections import Connection
 from .files import DataFile
 from .dialects import mssql
-from .exceptions import DriverNotSupportedException
 
 
 class BCP:
-    """This is an interface over database-specific classes that provides generic methods to load/dump data to/from a
-     database.
+    """
+    This is the interface over dialect-specific classes that provides generic methods to load/dump data to/from a
+    database.
 
     Args:
         connection: a Connection object that contains authorization details and database details
 
-    .. example::
+    Example:
+
+    .. code-block:: python
+
         from bcp import BCP, Connection, DataFile
 
         conn = Connection('host', 'mssql', 'username', 'password')
@@ -39,100 +32,62 @@ class BCP:
     def __init__(self, connection: Connection):
         self.connection = connection
 
-    def load(self, input_file: DataFile, table: str) -> subprocess.CompletedProcess:
-        """This method provides an interface between the agnostic BCP class and the lower level database-specific BCP class
+    def load(self, input_file: DataFile, table: str) -> str:
+        """
+        This method provides an interface to the lower level dialect-specific BCP load classes.
 
         Args:
             input_file: the file to be loaded into the database
             table: the table in which to land the data
 
-        Returns: the return code from the command line
+        Returns:
+             the name of the table that contains the data
 
-        .. example::
+        Example:
+
+        .. code-block:: python
+
             from bcp import BCP, Connection, DataFile
 
-            conn = Connection('host', 'mssql', 'username', 'password')
+            conn = Connection(host='HOST', driver='mssql', username='USER', password='PASSWORD')
             my_bcp = BCP(conn)
-            file = DataFile('pathtofile.csv')
-            my_bcp.load(file, 'my_schema.my_table')
+            file = DataFile(file_path='path/to/file.csv', delimiter=',')
+            my_bcp.load(file, 'table_name')
         """
         if self.connection.driver == 'mssql':
-            loader = mssql.MSSQLLoad(self.connection, input_file, table)
+            load = mssql.MSSQLLoad(self.connection, input_file, table)
         else:
             raise DriverNotSupportedException
-        return loader.execute()
+        return load.execute()
 
-    def dump(self, query: str, output_file: DataFile) -> subprocess.CompletedProcess:
-        """This method provides an interface between the agnostic BCP class and the lower level database-specific BCP class
+    def dump(self, query: str, output_file: DataFile = None) -> DataFile:
+        """
+        This method provides an interface to the lower level dialect-specific BCP dump classes.
 
         Args:
             query: the query whose results should be saved off to a file
-            output_file: the file to which the results should be saved
+            output_file: the file to which the data should be saved, if no file is provided, one will be created in
+                the BCP_DATA_DIR
 
-        Returns: the return code from the command line
+        Returns:
+             the data file object, which is useful when it is defaulted
 
-        .. example::
-            from bcp import BCP, Connection, DataFile
+        Example:
 
-            conn = Connection('host', 'mssql', 'username', 'password')
+        .. code-block:: python
+
+            from bcp import BCP, Connection
+
+            conn = Connection(host='HOST', driver='mssql', username='USER', password='PASSWORD')
             my_bcp = BCP(conn)
-            file = DataFile('pathtofile.csv')
-            my_bcp.dump('select * from sys.tables', file)
+            file = my_bcp.dump('select * from sys.tables')
+            print(file)  # %USERPROFILE%/bcp/data/<timestamp>.tsv
         """
         if self.connection.driver == 'mssql':
-            dumper = mssql.MSSQLDump(self.connection, query, output_file)
+            dump = mssql.MSSQLDump(self.connection, query, output_file)
         else:
             raise DriverNotSupportedException
-        return dumper.execute()
+        return dump.execute()
 
-
-class BCPLoad(abc.ABC):
-    """This is the abstract base class for all driver specific Dump implementations. It contains required methods and
-    default values for all subclasses.
-
-    Args:
-        connection: the Connection object that points to the database from which we want to export data
-    """
-
-    def __init__(self, connection: Connection, file: DataFile, table: str):
-        self.connection = connection
-        self.file = file
-        self.table = table
-
-    @abc.abstractmethod
-    def execute(self) -> subprocess.CompletedProcess:
-        """This is the main entry point of the class
-
-        Args:
-            input_file: the file containing the data to be imported
-            table: the table to which the data should be loaded
-
-        Returns: the result of the bcp command from the shell
-        """
-        raise NotImplementedError
-
-
-class BCPDump(abc.ABC):
-    """This is the abstract base class for all driver specific Dump implementations. It contains required methods and
-    default values for all subclasses.
-
-    Args:
-        connection: the Connection object that points to the database from which we want to export data
-    """
-
-    def __init__(self, connection: Connection, query: str, file: DataFile):
-        self.connection = connection
-        self.query = query
-        self.file = file
-
-    @abc.abstractmethod
-    def execute(self) -> subprocess.CompletedProcess:
-        """This is the main entry point of the class
-
-        Args:
-            query: the query to be executed against the database
-            output_file: the file path to the file where the query results should be stored
-
-        Returns: the result of the bcp command from the shell
-        """
-        raise NotImplementedError
+    def __repr__(self):
+        return f'<BCP: {self.connection}>'
