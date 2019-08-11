@@ -55,7 +55,7 @@ class ErrorFile(File):
 class DataFile(File):
     """This is a handle to the data file to be generated"""
 
-    def __init__(self, timestamp: datetime = None, delimiter: str = ','):
+    def __init__(self, timestamp: datetime = None, delimiter: str = '\t'):
         super().__init__(timestamp)
         self.extension = 'dat'
         self.delimiter = delimiter

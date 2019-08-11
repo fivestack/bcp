@@ -12,30 +12,33 @@ class Auth:
     def __init__(self, username: str = None, password: str = None):
         self.username = username
         self.password = password
-        self._set_type()
 
-    def _set_type(self):
-        """This method sets the authorization type depending on the username/password provided
-
-        The two options for authorization are Trusted and Credential:
-            * A Trusted connection is created when no username and no password are provided. In this case, the user's credentials and authorization method are used.
+    @property
+    def type(self):
+        """This property identifies the authorization type depending on the username/password provided. The two options
+         for authorization are Trusted and Credential:
+            * A Trusted connection is created when no username and no password are provided. In this case, the local
+             user's credentials and authorization method are used.
             * A Credential connection is created when both a username and a password are provided.
 
         If only one of username and password are provided, this raises an InvalidCredentialException.
         """
         if self.username is None and self.password is None:
-            self.type = 'Trusted'
+            return 'Trusted'
         elif self.username is not None and self.password is not None:
-            self.type = 'Credential'
+            return 'Credential'
         else:
             raise InvalidCredentialException
 
     def __repr__(self):
-        return f'<Auth: {self.username}>'
+        return f'<Auth: {self.username}, Type: {self.type}>'
 
 
 class Connection:
-    """This object describes a connection to be used to instantiate a BCP instance
+    """This object describes a connection to be used to instantiate a BCP instance. A host and driver must be supplied.
+    A username/password combination can be supplied upon instantiation to automatically create an associated Auth
+    object. Alternatively, this can be set as an attribute after instantiation. If the username/password are not
+    provided, the connection will assume a Trusted authorization in the meantime.
 
     Args:
         host: the host where the database exists
@@ -64,10 +67,9 @@ class Connection:
         return f'<Connection: {self.host}+{self.auth.__repr__()}>'
 
     def __str__(self):
-        """This method will generate a connection string using the associated Connection object. It supports Trusted
-        connections (using Windows AD) and Credential connections (using SQL Server accounts).
+        """This will generate a BCP formatted connection string in the dialect of the associated database.
 
-        Returns: a BCP formatted connection string
+        Returns: a BCP formatted, dialect-specific, connection string
         """
         if self.driver == 'mssql':
             if self.auth.type == 'Trusted':
