@@ -138,4 +138,4 @@ class MSSQLDump(MSSQLBCP, BCPDump):
         Returns:
              the command that will be passed into the BCP command line utility
         """
-        return f'{self.query} queryout "{self.file.path}" {self.connection} {self.config} {self.logging}'
+        return f'"{self.query}" queryout "{self.file.path}" {self.connection} {self.config} {self.logging}'

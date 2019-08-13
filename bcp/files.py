@@ -26,15 +26,9 @@ class File(abc.ABC):
 
         - the current timestamp is used so that unique error, log, and data files can be created
         - the file will be created in the BCP_ROOT_DIR directory specified in config.py
-
-    Args:
-        file_path: the path object to the file, if not provided, a default using the current timestamp will be created
     """
-
-    def __init__(self, file_path: Path = None):
-        self._default_directory = None
-        self._default_extension = None
-        self.file = file_path
+    _default_extension = None
+    _default_directory = None
 
     @property
     def file(self) -> Path:
@@ -57,8 +51,8 @@ class File(abc.ABC):
             self._file = self._default_directory / Path(file_name)
 
     @property
-    def path(self) -> str:
-        return str(self.file.absolute())
+    def path(self) -> Path:
+        return self.file.absolute()
 
 
 class DataFile(File):
@@ -70,7 +64,6 @@ class DataFile(File):
         delimiter: the field delimiter for the data file
     """
     def __init__(self, file_path: Path = None, delimiter: str = None):
-        super().__init__(file_path)
         self._default_directory = BCP_DATA_DIR
         self.delimiter = delimiter or '\t'
         if self.delimiter == '\t':
@@ -90,7 +83,6 @@ class LogFile(File):
         file_path: the path object to the file, if not provided, a default using the current timestamp will be created
     """
     def __init__(self, file_path: Path = None):
-        super().__init__(file_path)
         self._default_directory = BCP_LOGGING_DIR
         self._default_extension = 'log'
         self.file = file_path
@@ -104,7 +96,6 @@ class ErrorFile(File):
         file_path: the path object to the file, if not provided, a default using the current timestamp will be created
     """
     def __init__(self, file_path: Path = None):
-        super().__init__(file_path)
         self._default_directory = BCP_DATA_DIR
         self._default_extension = 'err'
         self.file = file_path

@@ -90,4 +90,4 @@ class BCP:
         return dump.execute()
 
     def __repr__(self):
-        return f'<BCP: {self.connection}>'
+        return f'<BCP: {repr(self.connection)}>'

@@ -34,6 +34,7 @@ class Auth:
     def __init__(self, username: str = None, password: str = None):
         self.username = username
         self.password = password
+        assert self.type
 
     @property
     def type(self) -> str:
@@ -91,7 +92,7 @@ class Connection:
         """
         This differs from __str__() because we don't want tracebacks to accidentally display credentials in plain text.
         """
-        return f'<Connection: {self.host}+{self.auth.__repr__()}>'
+        return f'<Connection: {self.host}, {repr(self.auth)}>'
 
     def __str__(self):
         """

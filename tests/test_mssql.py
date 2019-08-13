@@ -53,6 +53,7 @@ class TestMSSQLConnectionCreation:
 
 class TestMSSQLLoad:
 
+    @pytest.mark.freeze_time
     def test_mssql_load_builds_expected_command_with_defaults(self, mssql_load_defaults):
         data_file = files.DataFile()
         log_file = files.LogFile()
@@ -81,17 +82,18 @@ class TestMSSQLLoad:
 
     @pytest.mark.freeze_time('2019-07-01 01:00:00')
     def test_mssql_load_builds_expected_error_string(self, mssql_load_defaults):
-        error_file_path = BCP_ROOT_DIR / pathlib.Path('bcp/data/2019_07_01_01_00_00_000000.err')
+        error_file_path = BCP_ROOT_DIR / pathlib.Path('data/2019_07_01_01_00_00_000000.err')
         expected = f'-e "{error_file_path.absolute()}"'
         assert expected == mssql_load_defaults.error
 
 
 class TestMSSQLDump:
 
+    @pytest.mark.freeze_time
     def test_mssql_dump_builds_expected_command_with_defaults(self, mssql_dump_defaults):
         data_file = files.DataFile()
         log_file = files.LogFile()
-        query = 'select t2.column, t.* from schema.table t join schema2.table2 t2 on t2.fk = t.pk'
+        query = 'query'
         config = '-c -t "\t"'
         expected = f'"{query}" queryout "{data_file.path}" -S {HOST} -T {config} -o "{log_file.path}"'
         assert expected == mssql_dump_defaults.command

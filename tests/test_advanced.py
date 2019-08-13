@@ -26,7 +26,7 @@ def mssql_bcp() -> BCP:
     conn = Connection(host=host, driver='mssql', username=username, password=password)
     return BCP(conn)
 
-
+@pytest.mark.skip
 class TestMSSQL:
 
     database = 'DATABASE'
