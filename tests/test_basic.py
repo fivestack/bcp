@@ -1,43 +1,77 @@
-import datetime
 import pathlib
 import os
+
 import pytest
-from .context import files, exceptions, bcp
+
+from .context import files, exceptions, connections, BCP, Connection, STATIC_FILES
+
+HOST = 'SERVER,12345'
+USERNAME = 'user'
+PASSWORD = '1234'
 
 
-@pytest.fixture
-def unsupported_connection():
-    connection = bcp.Connection(host='SERVER,12345', driver='mssql')
-    connection.driver = 'unsupported'
-    return connection
-
-
-class TestFileCreation:
+class TestFiles:
 
     user_profile = pathlib.Path(os.environ['USERPROFILE'])
 
     @pytest.mark.freeze_time('2019-05-01 01:00:00')
-    def test_log_file_is_created(self):
-        log_file = files.LogFile(datetime.datetime.now())
-        log_file_path = self.user_profile / pathlib.Path('bcp/logs/2019_05_01_01_00_00_000000.log')
-        expected = log_file_path.absolute()
-        actual = log_file.file.absolute()
-        assert expected == actual
+    def test_log_file_creation_with_defaults(self):
+        log_file = files.LogFile()
+        expected_log_file_path = self.user_profile / pathlib.Path('bcp/logs/2019_05_01_01_00_00_000000.log')
+        assert expected_log_file_path.absolute() == log_file.path
 
     @pytest.mark.freeze_time('2019-07-01 01:00:00')
-    def test_error_file_is_created(self):
-        error_file = files.ErrorFile(datetime.datetime.now())
-        error_file_path = self.user_profile / pathlib.Path('bcp/logs/2019_07_01_01_00_00_000000.err')
-        expected = error_file_path.absolute()
-        actual = error_file.file.absolute()
-        assert expected == actual
+    def test_error_file_creation_with_defaults(self):
+        error_file = files.ErrorFile()
+        expected_error_file_path = self.user_profile / pathlib.Path('bcp/data/2019_07_01_01_00_00_000000.err')
+        assert expected_error_file_path.absolute() == error_file.path
+
+    @pytest.mark.freeze_time('2018-07-01 01:00:00')
+    def test_data_file_creation_with_defaults(self):
+        data_file = files.DataFile()
+        expected_data_file_path = self.user_profile / pathlib.Path('bcp/data/2018_07_01_01_00_00_000000.tsv')
+        assert expected_data_file_path.absolute() == data_file.path
+        assert '\t' == data_file.delimiter
+
+    @pytest.mark.freeze_time('2018-05-01 01:00:00')
+    def test_data_file_creation_with_path_and_delimiter(self):
+        file_path = STATIC_FILES / pathlib.Path('input.dat')
+        data_file = files.DataFile(file_path=file_path, delimiter='|~|')
+        expected_data_file_path = file_path
+        assert expected_data_file_path.absolute() == data_file.path
+        assert '|~|' == data_file.delimiter
+
+    @pytest.mark.freeze_time('2017-05-01 01:00:00')
+    def test_data_file_creation_with_no_path_and_comma_delimiter(self):
+        data_file = files.DataFile(delimiter=',')
+        expected_data_file_path = self.user_profile / pathlib.Path('bcp/data/2017_05_01_01_00_00_000000.csv')
+        assert expected_data_file_path.absolute() == data_file.path
+        assert ',' == data_file.delimiter
+
+    @pytest.mark.freeze_time('2017-08-01 01:00:00')
+    def test_data_file_creation_with_no_path_and_tab_delimiter(self):
+        data_file = files.DataFile(delimiter='\t')
+        expected_data_file_path = self.user_profile / pathlib.Path('bcp/data/2017_08_01_01_00_00_000000.tsv')
+        assert expected_data_file_path.absolute() == data_file.path
+        assert '\t' == data_file.delimiter
 
 
-def test_unsupported_connection_raises_exception():
+def test_connection_creation_with_unsupported_driver_raises_exception():
     with pytest.raises(exceptions.DriverNotSupportedException):
-        assert bcp.Connection(host='SERVER,12345', driver='unsupported')
+        assert Connection(host=HOST, driver='unsupported')
 
 
-def test_bcp_unsupported_connection_raises_exception(unsupported_connection):
-    with pytest.raises(exceptions.DriverNotSupportedException):
-        assert bcp.BCP(unsupported_connection)
+def test_auth_has_correct_repr():
+    auth = connections.Auth(username='user', password='pass')
+    assert '<Auth: user, Type: Credential>' == repr(auth)
+
+
+def test_connection_has_correct_repr():
+    conn = Connection(host=HOST, driver='mssql', username=USERNAME, password=PASSWORD)
+    assert f'<Connection: {HOST}, <Auth: {USERNAME}, Type: Credential>>' == repr(conn)
+
+
+def test_bcp_has_correct_repr():
+    conn = Connection(host=HOST, driver='mssql', username=USERNAME, password=PASSWORD)
+    my_bcp = BCP(conn)
+    assert f'<BCP: <Connection: {HOST}, <Auth: {USERNAME}, Type: Credential>>>' == repr(my_bcp)

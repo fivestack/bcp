@@ -1,3 +1,5 @@
+"""This module contains exceptions for this application."""
+
 
 class DriverNotSupportedException(Exception):
     """This exception occurs when an unsupported driver is provided to a Connection or BCP object"""
