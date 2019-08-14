@@ -61,3 +61,5 @@ html_static_path = ['_static']
 autodoc_default_options = {
     'member-order': 'bysource'
 }
+
+master_doc = 'index'
