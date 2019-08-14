@@ -16,8 +16,15 @@ Though it currently supports MSSQL, there are plans to extend support to other d
 
 - Python 3.6+
 
-This library purposely requires nothing outside of the standard library, beyond testing and documentation needs.
-The intention is to maintain this status.
+This library purposely requires no python packages outside of the standard library, beyond testing and documentation
+needs. The intention is to maintain this status. However, you will need to have the appropriate command line utilities
+installed for the specific database dialects with which you'll interact. For example, if your database is a MS SQL
+SERVER instance, you'll need BCP installed. Consult the table below for further documentation, including download files
+and instructions.
+
+| RDBMS         | Utility | Documentation / Installation                           |
+|:--------------|:--------|:-------------------------------------------------------|
+| MS SQL Server | BCP     | https://docs.microsoft.com/en-us/sql/tools/bcp-utility |
 
 # Installation
 
@@ -51,4 +58,4 @@ print(file)  # %USERPROFILE%/bcp/data/<timestamp>.tsv
 
 # Full Documentation
 
-< readthedocs will go here >
+For the full documentation, please visit: https://bcp.readthedocs.io/en/latest/
