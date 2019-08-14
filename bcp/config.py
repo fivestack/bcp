@@ -11,7 +11,7 @@ import os
 
 
 def get_bcp_root_dir() -> Path:
-    user_profile = Path(os.environ.get('USERPROFILE', None))
+    user_profile = Path(os.environ.get('USERPROFILE', ''))
     bcp_root_dir_default = user_profile / Path('bcp')
     bcp_root_dir = Path(os.environ.get('BCP_ROOT_DIR', bcp_root_dir_default.absolute()))
     return bcp_root_dir
