@@ -4,11 +4,11 @@ required to fully execute BCP commands. These tests will be accessing the databa
 actual files, and writing data to the database. These tests will require:
 
     - an instance of each supported database type (mssql, etc.)
+    - an installation of the command line utility (if applicable) for each supported database (bcp, sqlcmd, etc.)
     - an account that has access to create/drop tables and insert data into those tables in said database
 
 The settings that appear within each of the connection fixtures, and at the top of each test class, should be updated
-to reflect the associated pre-prod environment. They are not saved (and should be set back to anonymous names after
-testing and before saving) because they would contain actual machine names and credentials.
+to reflect the associated pre-prod environment.
 """
 import pathlib
 import subprocess
@@ -20,17 +20,29 @@ from .context import STATIC_FILES, Connection, BCP, DataFile
 
 @pytest.fixture
 def mssql_bcp() -> BCP:
-    host = 'MSSQL'
+    """
+    This will hand back a BCP wrapper around a connection to the development version of SQL Server installed locally.
+    You can obtain a development copy of SQL Server for free here:
+
+    https://www.microsoft.com/en-us/sql-server/sql-server-downloads
+
+    The default settings will setup a database on localhost with the local user as admin, allowing you to run these
+    tests.
+
+    Returns:
+        a BCP instance with a connection to the development version of SQL Server on localhost
+    """
+    host = 'localhost'
     username = None
     password = None
     conn = Connection(host=host, driver='mssql', username=username, password=password)
     return BCP(conn)
 
-@pytest.mark.skip
+
 class TestMSSQL:
 
-    database = 'DATABASE'
-    schema = 'SCHEMA'
+    database = 'master'
+    schema = 'dbo'
 
     def test_mssql_can_dump_tables(self, mssql_bcp):
         query = f'''
@@ -39,7 +51,7 @@ class TestMSSQL:
             join {self.database}.sys.schemas s
             on s.schema_id = t.schema_id
         '''
-        output_file_path = DataFile(STATIC_FILES / pathlib.Path('output.dat'))
+        output_file_path = STATIC_FILES / pathlib.Path('output.dat')
         output_file = DataFile(output_file_path)
         mssql_bcp.dump(query, output_file)
         assert True is output_file.file.is_file()
@@ -51,7 +63,7 @@ class TestMSSQL:
         drop = f'drop table {table}'
         sqlcmd = f'sqlcmd -S {mssql_bcp.connection.host} -Q'
         subprocess.run(f'{sqlcmd} "{create}"', check=True)
-        input_file_path = DataFile(STATIC_FILES / pathlib.Path('input.dat'))
+        input_file_path = STATIC_FILES / pathlib.Path('input.dat')
         input_file = DataFile(input_file_path)
         mssql_bcp.load(input_file, table)
         subprocess.run(f'{sqlcmd} "{drop}"', check=True)
