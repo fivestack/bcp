@@ -14,6 +14,7 @@ class MSSQLBCP:
     """This mixin provides properties for MSSQL's BCP. It serves as a mixin for BCPLoad and BCPDump subclasses below."""
     file = None
     batch_size = None
+    character_data = None
 
     @property
     def command(self) -> str:
@@ -35,7 +36,9 @@ class MSSQLBCP:
         Returns:
              a BCP formatted configuration string
         """
-        return f'-c -t "{self.file.delimiter}"'
+        if self.character_data:
+            return f'-c -t "{self.file.delimiter}"'
+        return f'-t "{self.file.delimiter}"'
 
     @property
     def logging(self) -> str:
@@ -57,12 +60,16 @@ class MSSQLLoad(MSSQLBCP, BCPLoad):
         connection: the (mssql) Connection object that points to the database from which we want to export data
         file: the file whose data should be imported into the target database
         table: the into which the data will be written
+        batch_size: the number of records to read in one commit, defaulted to 10,000
+        character_data: allows BCP to use character data, defaulted to True
     """
-    def __init__(self, connection: Connection, file: DataFile, table: str):
+    def __init__(self, connection: Connection, file: DataFile, table: str, batch_size: int = 10000,
+                 character_data: bool = True):
         if connection.driver != 'mssql':
             raise DriverNotSupportedException
         super().__init__(connection, file, table)
-        self.batch_size = 10000
+        self.batch_size = batch_size
+        self.character_data = character_data
 
     def execute(self) -> str:
         """
@@ -115,10 +122,11 @@ class MSSQLDump(MSSQLBCP, BCPDump):
         query: the query defining the data to be exported
         file: the file to which the data will be written
     """
-    def __init__(self, connection: Connection, query: str, file: DataFile = None):
+    def __init__(self, connection: Connection, query: str, file: DataFile = None, character_data: bool = True):
         if connection.driver != 'mssql':
             raise DriverNotSupportedException
         super().__init__(connection, query, file)
+        self.character_data = character_data
 
     def execute(self) -> DataFile:
         """

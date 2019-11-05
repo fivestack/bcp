@@ -2,16 +2,16 @@
 This module creates directories (or returns existing directories) to store logs, data and other artifacts.
 
 .. note::
-    This application defaults to creating a 'bcp' directory inside of the %userprofile% directory. However, this can be
-    overridden by setting a value for the environmental variable BCP_ROOT_DIR. The structure within this root directory
-    will always be the same.
+    This application defaults to creating a 'bcp' directory inside of the user's home directory. This would be the value
+    of %USERPROFILE% on Windows or %HOME% on linux. This can be overridden by setting a value for the environmental
+    variable BCP_ROOT_DIR. The structure within this root directory will always be the same.
 """
 from pathlib import Path
 import os
 
 
 def get_bcp_root_dir() -> Path:
-    user_profile = Path(os.environ.get('USERPROFILE', ''))
+    user_profile = Path.home()
     bcp_root_dir_default = user_profile / Path('bcp')
     bcp_root_dir = Path(os.environ.get('BCP_ROOT_DIR', bcp_root_dir_default.absolute()))
     return bcp_root_dir

@@ -56,7 +56,7 @@ class Auth:
             raise InvalidCredentialException
 
     def __repr__(self):
-        return f'<Auth: {self.username}, Type: {self.type}>'
+        return f'Auth(username={self.username}, password={len(self.password)})'
 
 
 class Connection:
@@ -67,14 +67,16 @@ class Connection:
     are not provided, the connection will assume a Trusted authorization in the meantime.
 
     Args:
-        host: the host where the database exists
         driver: the type of database (mssql, etc.)
+        host: the host where the database exists
+        port: the port for the database server
         username: the username for authentication
         password: the password for authentication
     """
 
-    def __init__(self, host: str, driver: str, username: str = None, password: str = None):
+    def __init__(self, driver: str, host: str, port: int = None, username: str = None, password: str = None):
         self.host = host
+        self.port = port
         self.auth = Auth(username, password)
         self.driver = driver
 
@@ -92,7 +94,7 @@ class Connection:
         """
         This differs from __str__() because we don't want tracebacks to accidentally display credentials in plain text.
         """
-        return f'<Connection: {self.host}, {repr(self.auth)}>'
+        return f'Connection(driver={self.driver}, host={self.host}, port={self.port}, auth={repr(self.auth)})'
 
     def __str__(self):
         """
@@ -106,4 +108,8 @@ class Connection:
                 auth_string = f'-T'
             else:
                 auth_string = f'-U {self.auth.username} -P {self.auth.password}'
-            return f'-S {self.host} {auth_string}'
+            if self.port:
+                machine = f'{self.host},{self.port}'
+            else:
+                machine = self.host
+            return f'-S {machine} {auth_string}'

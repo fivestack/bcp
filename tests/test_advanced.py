@@ -15,7 +15,7 @@ import subprocess
 
 import pytest
 
-from .context import STATIC_FILES, Connection, BCP, DataFile
+from .conftest import STATIC_FILES, Connection, BCP, DataFile
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def mssql_bcp() -> BCP:
     host = 'localhost'
     username = None
     password = None
-    conn = Connection(host=host, driver='mssql', username=username, password=password)
+    conn = Connection(driver='mssql', host=host, username=username, password=password)
     return BCP(conn)
 
 

@@ -3,9 +3,11 @@ import os
 
 import pytest
 
-from .context import files, exceptions, connections, BCP, Connection, STATIC_FILES
+from .conftest import files, exceptions, connections, BCP, Connection, STATIC_FILES
 
-HOST = 'SERVER,12345'
+DRIVER = 'mssql'
+HOST = 'SERVER'
+PORT = 12345
 USERNAME = 'user'
 PASSWORD = '1234'
 
@@ -63,15 +65,17 @@ def test_connection_creation_with_unsupported_driver_raises_exception():
 
 def test_auth_has_correct_repr():
     auth = connections.Auth(username='user', password='pass')
-    assert '<Auth: user, Type: Credential>' == repr(auth)
+    assert f'Auth(username={USERNAME}, password={len(PASSWORD)})' == repr(auth)
 
 
 def test_connection_has_correct_repr():
-    conn = Connection(host=HOST, driver='mssql', username=USERNAME, password=PASSWORD)
-    assert f'<Connection: {HOST}, <Auth: {USERNAME}, Type: Credential>>' == repr(conn)
+    conn = Connection(driver='mssql', host=HOST, port=PORT, username=USERNAME, password=PASSWORD)
+    assert f'Connection(driver={DRIVER}, host={HOST}, port={PORT}, auth=Auth(username={USERNAME},' \
+           f' password={len(PASSWORD)}))' == repr(conn)
 
 
 def test_bcp_has_correct_repr():
-    conn = Connection(host=HOST, driver='mssql', username=USERNAME, password=PASSWORD)
+    conn = Connection(driver='mssql', host=HOST, port=PORT, username=USERNAME, password=PASSWORD)
     my_bcp = BCP(conn)
-    assert f'<BCP: <Connection: {HOST}, <Auth: {USERNAME}, Type: Credential>>>' == repr(my_bcp)
+    assert f'BCP(connection=Connection(driver={DRIVER}, host={HOST}, port={PORT}, auth=Auth(username={USERNAME},' \
+           f' password={len(PASSWORD)})))' == repr(my_bcp)

@@ -29,22 +29,18 @@ BCP
 
 .. automodule:: bcp.core
    :members:
-   :private-members:
 
 Connections
 -----------
 
 .. automodule:: bcp.connections
    :members:
-   :private-members:
 
 Files
 -----
 
 .. automodule:: bcp.files
    :members:
-   :private-members:
-
 
 Dialect Support
 ===============
@@ -58,7 +54,6 @@ MSSQL
 .. automodule:: bcp.dialects.mssql
    :members:
 
-
 Configuration
 =============
 
@@ -67,11 +62,9 @@ Config
 
 .. automodule:: bcp.config
    :members:
-   :private-members:
 
 Exceptions
 ----------
 
 .. automodule:: bcp.exceptions
    :members:
-   :private-members:

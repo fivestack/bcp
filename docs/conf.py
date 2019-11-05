@@ -23,7 +23,8 @@ copyright = '2019, Mike Alfare'
 author = 'Mike Alfare'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.1'
+from bcp import __version__ as package_version
+release = package_version
 
 # -- General configuration ---------------------------------------------------
 

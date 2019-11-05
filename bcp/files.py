@@ -10,7 +10,7 @@ Example:
 
     # create a csv to write out my data
     my_file = DataFile(delimiter=',')
-    print(my_file.path)  # %USERPROFILE%/bcp/data/<timestamp>.csv
+    print(my_file.path)  # %HOME%/bcp/data/<timestamp>.csv
 """
 import abc
 import datetime
@@ -29,6 +29,7 @@ class File(abc.ABC):
     """
     _default_extension = None
     _default_directory = None
+    _file = None
 
     @property
     def file(self) -> Path:
