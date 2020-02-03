@@ -38,22 +38,22 @@ in which case you'll be able to install it using `pip`
 
 Import data:
 ```python
-from bcp import BCP, Connection, DataFile
+import bcp
 
-conn = Connection(host='HOST', driver='mssql', username='USER', password='PASSWORD')
-my_bcp = BCP(conn)
-file = DataFile(file_path='path/to/file.csv', delimiter=',')
-my_bcp.load(file, 'table_name')
+conn = bcp.Connection(host='HOST', driver='mssql', username='USER', password='PASSWORD')
+my_bcp = bcp.BCP(conn)
+file = bcp.DataFile(file_path='path/to/file.csv', delimiter=',')
+my_bcp.load(input_file=file, table='table_name')
 ```
 
 Export data:
 ```python
-from bcp import BCP, Connection
+import bcp
 
-conn = Connection(host='HOST', driver='mssql', username='USER', password='PASSWORD')
-my_bcp = BCP(conn)
-file = my_bcp.dump('select * from sys.tables')
-print(file)  # %USERPROFILE%/bcp/data/<timestamp>.tsv
+conn = bcp.Connection(host='HOST', driver='mssql', username='USER', password='PASSWORD')
+my_bcp = bcp.BCP(conn)
+file = bcp.DataFile(file_path='path/to/file.csv', delimiter=',')
+my_bcp.dump(query='select * from sys.tables', output_file=file)
 ```
 
 # Full Documentation

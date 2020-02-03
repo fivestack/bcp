@@ -6,7 +6,7 @@
 Welcome to BCP's documentation!
 ===============================
 The source repository is located
-`here <https://github.com/mikealfare/bcp>`_
+`here <https://github.com/fivestack/bcp>`_
 
 .. toctree::
    :maxdepth: 2

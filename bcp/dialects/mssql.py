@@ -3,11 +3,15 @@ This module contains MS SQL Server specific logic that works with the BCP comman
 are relevant beyond the scope of this library, and should not be used outside of the library.
 """
 import subprocess
+from typing import TYPE_CHECKING
 
 from ..exceptions import DriverNotSupportedException
-from ..connections import Connection
-from ..files import LogFile, ErrorFile, DataFile
+from ..files import LogFile, ErrorFile
 from .base import BCPLoad, BCPDump
+
+if TYPE_CHECKING:
+    from ..connections import Connection
+    from ..files import DataFile
 
 
 class MSSQLBCP:
@@ -63,7 +67,7 @@ class MSSQLLoad(MSSQLBCP, BCPLoad):
         batch_size: the number of records to read in one commit, defaulted to 10,000
         character_data: allows BCP to use character data, defaulted to True
     """
-    def __init__(self, connection: Connection, file: DataFile, table: str, batch_size: int = 10000,
+    def __init__(self, connection: 'Connection', file: 'DataFile', table: str, batch_size: int = 10000,
                  character_data: bool = True):
         if connection.driver != 'mssql':
             raise DriverNotSupportedException
@@ -71,15 +75,11 @@ class MSSQLLoad(MSSQLBCP, BCPLoad):
         self.batch_size = batch_size
         self.character_data = character_data
 
-    def execute(self) -> str:
+    def execute(self):
         """
         This will run the instance's command via the BCP utility
-
-        Returns:
-             the name of the table that contains the data
         """
         subprocess.run(f'bcp {self.command}', check=True)
-        return self.table
 
     @property
     def command(self) -> str:
@@ -122,21 +122,17 @@ class MSSQLDump(MSSQLBCP, BCPDump):
         query: the query defining the data to be exported
         file: the file to which the data will be written
     """
-    def __init__(self, connection: Connection, query: str, file: DataFile = None, character_data: bool = True):
+    def __init__(self, connection: 'Connection', query: str, file: 'DataFile', character_data: bool = True):
         if connection.driver != 'mssql':
             raise DriverNotSupportedException
         super().__init__(connection, query, file)
         self.character_data = character_data
 
-    def execute(self) -> DataFile:
+    def execute(self):
         """
         This will run the instance's command via the BCP utility
-
-        Returns:
-             the data file object that contains the exported data
         """
         subprocess.run(f'bcp {self.command}', check=True)
-        return self.file
 
     @property
     def command(self) -> str:

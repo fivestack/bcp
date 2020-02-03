@@ -10,14 +10,14 @@ Example:
 .. code-block:: python
 
     import os
-    from bcp import Connection, BCP
+    import bcp
 
     host = os.environ['HOST']
     username = os.environ['USERNAME']
     password = os.environ['PASSWORD']
 
-    conn = Connection(host, 'mssql', username, password)
-    my_bcp = BCP(conn)
+    conn = bcp.Connection(host, 'mssql', username, password)
+    my_bcp = bcp.BCP(conn)
 """
 from .exceptions import DriverNotSupportedException, InvalidCredentialException
 

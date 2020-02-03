@@ -1,7 +1,9 @@
 import abc
+from typing import TYPE_CHECKING
 
-from ..files import DataFile
-from ..connections import Connection
+if TYPE_CHECKING:
+    from ..connections import Connection
+    from ..files import DataFile
 
 
 class BCPLoad(abc.ABC):
@@ -14,14 +16,13 @@ class BCPLoad(abc.ABC):
         file: the file to be loaded into the database
         table: the table in which to land the data
     """
-
-    def __init__(self, connection: Connection, file: DataFile, table: str):
+    def __init__(self, connection: 'Connection', file: 'DataFile', table: str):
         self.connection = connection
         self.file = file
         self.table = table
 
     @abc.abstractmethod
-    def execute(self) -> str:
+    def execute(self):
         """
         This will execute the the data import process.
 
@@ -41,14 +42,13 @@ class BCPDump(abc.ABC):
         query: the query for the data to be exported
         file: the file to write the to, if not provided, a default will be created in the BCP_DATA_DIR
     """
-
-    def __init__(self, connection: Connection, query: str, file: DataFile = None):
+    def __init__(self, connection: 'Connection', query: str, file: 'DataFile'):
         self.connection = connection
         self.query = query
         self.file = file
 
     @abc.abstractmethod
-    def execute(self) -> DataFile:
+    def execute(self):
         """
         This will execute the data export process
 
@@ -57,19 +57,3 @@ class BCPDump(abc.ABC):
         """
         raise NotImplementedError
 
-    @property
-    def file(self) -> DataFile:
-        return self._file
-
-    @file.setter
-    def file(self, value: DataFile = None):
-        """
-        This setter will create a default file in the BCP_DATA_DIR if no file is provided.
-
-        Args:
-            value: the file to use instead of the default, if provided
-        """
-        if value is None:
-            self._file = DataFile()
-        else:
-            self._file = value

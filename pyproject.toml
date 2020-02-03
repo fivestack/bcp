@@ -6,27 +6,27 @@ build-backend = "flit.buildapi"
 module = "bcp"
 author = "Mike Alfare"
 author-email = "alfare@gmail.com"
-home-page = "https://github.com/mikealfare/bcp"
+home-page = "https://github.com/fivestack/bcp"
 
 requires = []
-requires-python = ">=3.6"
-
+requires-python = ">=3.6,<4.0"
 description-file = "README.md"
 classifiers = [
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.6",
-    "License :: OSI Approved :: MIT License"
+    "Topic :: Database"
 ]
 
 keywords = "BCP SQLServer MSSQL"
 
 [tool.flit.metadata.requires-extra]
 test = [
-    "pytest",
-    "pytest-cov",
-    "pytest-freezegun"
+    "pytest >=5.1.3,<6.0",
+    "pytest-cov >=2.7.1,<3.0",
+    "pytest-freezegun >=0.4.1,<0.5"
 ]
 doc = [
-    "sphinx",
-    "sphinx-autodoc-typehints",
-    "sphinx_rtd_theme"
+    "sphinx >=2.2.0,<3.0",
+    "sphinx-autodoc-typehints >=1.8.0,<2.0",
+    "sphinx_rtd_theme >=0.4.3,<0.5"
 ]

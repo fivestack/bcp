@@ -1,6 +1,6 @@
 """
 This collection of tests is intended to be run in a pre-prod environment that has access to all of the resources
-required to fully execute BCP commands. These tests will be accessing the database, writing actual files, reading in
+required to fully execute BCP commands. These tests will be accessing the database, writing actual files, reading
 actual files, and writing data to the database. These tests will require:
 
     - an instance of each supported database type (mssql, etc.)
@@ -19,7 +19,7 @@ from .conftest import STATIC_FILES, Connection, BCP, DataFile
 
 
 @pytest.fixture
-def mssql_bcp() -> BCP:
+def mssql_bcp() -> 'BCP':
     """
     This will hand back a BCP wrapper around a connection to the development version of SQL Server installed locally.
     You can obtain a development copy of SQL Server for free here:
@@ -32,10 +32,7 @@ def mssql_bcp() -> BCP:
     Returns:
         a BCP instance with a connection to the development version of SQL Server on localhost
     """
-    host = 'localhost'
-    username = None
-    password = None
-    conn = Connection(driver='mssql', host=host, username=username, password=password)
+    conn = Connection(driver='mssql', host='localhost')
     return BCP(conn)
 
 
@@ -52,9 +49,9 @@ class TestMSSQL:
             on s.schema_id = t.schema_id
         '''
         output_file_path = STATIC_FILES / pathlib.Path('output.dat')
-        output_file = DataFile(output_file_path)
-        mssql_bcp.dump(query, output_file)
-        assert True is output_file.file.is_file()
+        output_file = DataFile(file_path=output_file_path, delimiter='|~|')
+        mssql_bcp.dump(query=query, output_file=output_file)
+        assert output_file.file.is_file()
         output_file.file.unlink()
 
     def test_mssql_can_load_tables(self, mssql_bcp):
@@ -64,7 +61,7 @@ class TestMSSQL:
         sqlcmd = f'sqlcmd -S {mssql_bcp.connection.host} -Q'
         subprocess.run(f'{sqlcmd} "{create}"', check=True)
         input_file_path = STATIC_FILES / pathlib.Path('input.dat')
-        input_file = DataFile(input_file_path)
-        mssql_bcp.load(input_file, table)
+        input_file = DataFile(file_path=input_file_path, delimiter='|~|')
+        mssql_bcp.load(input_file=input_file, table=table)
         subprocess.run(f'{sqlcmd} "{drop}"', check=True)
         assert 1 == 1
